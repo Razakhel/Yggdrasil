@@ -2,6 +2,12 @@
 
 Tree &amp; foliage procedural generation.
 
+# Gallery
+
+![Fractal semi-random 4-branch](https://imgur.com/0nwjpgq.jpg)
+
+More progress screenshots are available on the wiki's [milestones page](https://github.com/Razakhel/Yggdrasil/wiki/Milestones).
+
 # Resources
 
 - Pałubicki et al. (2009) -  [Self-organizing tree models for image synthesis](http://www.algorithmicbotany.org/papers/selforg.sig2009.small.pdf)
