@@ -1,3 +1,5 @@
+#include "Yggdrasil/Tree.hpp"
+
 #include <RaZ/Application.hpp>
 #include <RaZ/Math/Transform.hpp>
 #include <RaZ/Render/RenderSystem.hpp>
@@ -24,6 +26,7 @@ int main() {
                                        Raz::FragmentShader(RAZ_ROOT + "shaders/cook-torrance.frag"s));
 
   Raz::Window& window = renderSystem.getWindow();
+  window.setClearColor(0.75f, 0.75f, 0.75f);
 
 #if !defined(USE_OPENGL_ES)
   // Allow wireframe toggling
@@ -43,7 +46,22 @@ int main() {
 
   Raz::Entity& camera = world.addEntity();
   auto& cameraComp    = camera.addComponent<Raz::Camera>(window.getWidth(), window.getHeight(), 45_deg, 0.1f, 1000.f);
-  auto& cameraTrans   = camera.addComponent<Raz::Transform>(Raz::Vec3f(0.f, 0.f, -5.f));
+  auto& cameraTrans   = camera.addComponent<Raz::Transform>(Raz::Vec3f(0.f, 1.f, -7.5f));
+
+  //////////
+  // Tree //
+  //////////
+
+  Raz::Entity& treeEntity = world.addEntity();
+  auto& treeMesh          = treeEntity.addComponent<Raz::Mesh>();
+  treeEntity.addComponent<Raz::Transform>();
+
+  unsigned int branchLevel  = 10;
+  Raz::Radiansf branchAngle = 20_deg;
+
+  Tree tree(treeMesh, branchLevel, branchAngle);
+
+  Raz::Renderer::disable(Raz::Capability::CULL);
 
   /////////////////////
   // Camera controls //
@@ -119,6 +137,18 @@ int main() {
   window.addOverlayLabel("Space/V to go up/down,");
   window.addOverlayLabel("& Shift to move faster.");
   window.addOverlayLabel("Hold the right mouse button to rotate the camera.");
+
+  window.addOverlaySeparator();
+
+  window.addOverlaySlider("Branches level", [&branchLevel, &branchAngle, &tree] (float value) {
+    branchLevel = static_cast<unsigned int>(value);
+    tree.generate(branchLevel, branchAngle);
+  }, 0.f, 10.f, static_cast<float>(branchLevel));
+
+  window.addOverlaySlider("Branches angle", [&branchLevel, &branchAngle, &tree] (float value) {
+    branchAngle = Raz::Degreesf(value);
+    tree.generate(branchLevel, branchAngle);
+  }, 5.f, 45.f, Raz::Degreesf(branchAngle).value);
 
   window.addOverlaySeparator();
 
