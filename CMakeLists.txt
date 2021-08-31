@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(Irminsul)
+project(Yggdrasil)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -8,110 +8,110 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif ()
 
-#########################
-# Irminsul - Executable #
-#########################
+##########################
+# Yggdrasil - Executable #
+##########################
 
-add_executable(Irminsul)
+add_executable(Yggdrasil)
 
 # Using C++17
-target_compile_features(Irminsul PRIVATE cxx_std_17)
+target_compile_features(Yggdrasil PRIVATE cxx_std_17)
 
-###############################
-# Irminsul - Useful variables #
-###############################
+################################
+# Yggdrasil - Useful variables #
+################################
 
 # Detect whether Emscripten is being used
 if (CMAKE_CXX_COMPILER MATCHES "/em\\+\\+.*$")
-    set(IRMINSUL_USE_EMSCRIPTEN ON)
+    set(YGGDRASIL_USE_EMSCRIPTEN ON)
     set(CMAKE_AR "${CMAKE_C_COMPILER}")
     set(CMAKE_STATIC_LIBRARY_SUFFIX ".bc")
     set(CMAKE_C_CREATE_STATIC_LIBRARY "<CMAKE_AR> -o <TARGET> <LINK_FLAGS> <OBJECTS>")
     set(CMAKE_CXX_CREATE_STATIC_LIBRARY "<CMAKE_AR> -o <TARGET> <LINK_FLAGS> <OBJECTS>")
 else ()
-    set(IRMINSUL_USE_EMSCRIPTEN OFF)
+    set(YGGDRASIL_USE_EMSCRIPTEN OFF)
 endif ()
 
 if (MSVC AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang") # Finding exclusively MSVC, not clang-cl
-    set(IRMINSUL_COMPILER "MSVC")
-    set(IRMINSUL_COMPILER_MSVC ON)
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_COMPILER_MSVC)
+    set(YGGDRASIL_COMPILER "MSVC")
+    set(YGGDRASIL_COMPILER_MSVC ON)
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_COMPILER_MSVC)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if (MSVC)
         # Using clang-cl, for which both MSVC & Clang are found
-        set(IRMINSUL_COMPILER "Clang-cl")
-        set(IRMINSUL_COMPILER_CLANG_CL ON)
+        set(YGGDRASIL_COMPILER "Clang-cl")
+        set(YGGDRASIL_COMPILER_CLANG_CL ON)
     else ()
-        set(IRMINSUL_COMPILER "Clang")
+        set(YGGDRASIL_COMPILER "Clang")
     endif ()
 
-    set(IRMINSUL_COMPILER_CLANG ON)
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_COMPILER_CLANG)
+    set(YGGDRASIL_COMPILER_CLANG ON)
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_COMPILER_CLANG)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(IRMINSUL_COMPILER "GCC")
-    set(IRMINSUL_COMPILER_GCC ON)
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_COMPILER_GCC)
+    set(YGGDRASIL_COMPILER "GCC")
+    set(YGGDRASIL_COMPILER_GCC ON)
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_COMPILER_GCC)
 endif ()
 
 if (WIN32 OR CYGWIN)
-    set(IRMINSUL_PLATFORM "Windows")
-    set(IRMINSUL_PLATFORM_WINDOWS ON)
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_PLATFORM_WINDOWS)
+    set(YGGDRASIL_PLATFORM "Windows")
+    set(YGGDRASIL_PLATFORM_WINDOWS ON)
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_WINDOWS)
 
     if (CYGWIN)
-        set(IRMINSUL_PLATFORM "${IRMINSUL_PLATFORM} (Cygwin)")
-        set(IRMINSUL_PLATFORM_CYGWIN ON)
-        target_compile_definitions(Irminsul PUBLIC IRMINSUL_PLATFORM_CYGWIN)
+        set(YGGDRASIL_PLATFORM "${YGGDRASIL_PLATFORM} (Cygwin)")
+        set(YGGDRASIL_PLATFORM_CYGWIN ON)
+        target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_CYGWIN)
     endif ()
 elseif (APPLE)
-    set(IRMINSUL_PLATFORM "macOS")
-    set(IRMINSUL_PLATFORM_MAC ON)
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_PLATFORM_MAC)
-elseif (IRMINSUL_USE_EMSCRIPTEN)
-    set(IRMINSUL_PLATFORM "Emscripten")
-    set(IRMINSUL_PLATFORM_EMSCRIPTEN ON)
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_PLATFORM_EMSCRIPTEN USE_OPENGL_ES)
+    set(YGGDRASIL_PLATFORM "macOS")
+    set(YGGDRASIL_PLATFORM_MAC ON)
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_MAC)
+elseif (YGGDRASIL_USE_EMSCRIPTEN)
+    set(YGGDRASIL_PLATFORM "Emscripten")
+    set(YGGDRASIL_PLATFORM_EMSCRIPTEN ON)
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_EMSCRIPTEN USE_OPENGL_ES)
 elseif (UNIX)
-    set(IRMINSUL_PLATFORM "Linux")
-    set(IRMINSUL_PLATFORM_LINUX ON)
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_PLATFORM_LINUX)
+    set(YGGDRASIL_PLATFORM "Linux")
+    set(YGGDRASIL_PLATFORM_LINUX ON)
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_LINUX)
 endif ()
 
-if (IRMINSUL_COMPILER_MSVC)
-    set(IRMINSUL_CONFIG_DEBUG   "$<IF:$<CONFIG:Debug>,ON,OFF>")
-    set(IRMINSUL_CONFIG_RELEASE "$<IF:$<CONFIG:Debug>,OFF,ON>")
-    set(IRMINSUL_CONFIG_SHORT   "$<IF:$<CONFIG:Debug>,Debug,Release>")
+if (YGGDRASIL_COMPILER_MSVC)
+    set(YGGDRASIL_CONFIG_DEBUG   "$<IF:$<CONFIG:Debug>,ON,OFF>")
+    set(YGGDRASIL_CONFIG_RELEASE "$<IF:$<CONFIG:Debug>,OFF,ON>")
+    set(YGGDRASIL_CONFIG_SHORT   "$<IF:$<CONFIG:Debug>,Debug,Release>")
 
-    target_compile_definitions(Irminsul PUBLIC $<IF:$<CONFIG:Debug>,IRMINSUL_CONFIG_DEBUG,IRMINSUL_CONFIG_RELEASE>)
+    target_compile_definitions(Yggdrasil PUBLIC $<IF:$<CONFIG:Debug>,YGGDRASIL_CONFIG_DEBUG,YGGDRASIL_CONFIG_RELEASE>)
 else ()
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(IRMINSUL_CONFIG_DEBUG   ON)
-        set(IRMINSUL_CONFIG_RELEASE OFF)
-        set(IRMINSUL_CONFIG_SHORT   "Debug")
+        set(YGGDRASIL_CONFIG_DEBUG   ON)
+        set(YGGDRASIL_CONFIG_RELEASE OFF)
+        set(YGGDRASIL_CONFIG_SHORT   "Debug")
 
-        target_compile_definitions(Irminsul PUBLIC IRMINSUL_CONFIG_DEBUG)
+        target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_CONFIG_DEBUG)
     else ()
-        set(IRMINSUL_CONFIG_DEBUG   OFF)
-        set(IRMINSUL_CONFIG_RELEASE ON)
-        set(IRMINSUL_CONFIG_SHORT   "Release")
+        set(YGGDRASIL_CONFIG_DEBUG   OFF)
+        set(YGGDRASIL_CONFIG_RELEASE ON)
+        set(YGGDRASIL_CONFIG_SHORT   "Release")
 
-        target_compile_definitions(Irminsul PUBLIC IRMINSUL_CONFIG_RELEASE)
+        target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_CONFIG_RELEASE)
     endif ()
 endif ()
 
-if (IRMINSUL_USE_EMSCRIPTEN)
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_ROOT="/")
+if (YGGDRASIL_USE_EMSCRIPTEN)
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_ROOT="/")
 else ()
-    target_compile_definitions(Irminsul PUBLIC IRMINSUL_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
+    target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
 endif ()
 
-#############################
-# Irminsul - Compiler flags #
-#############################
+##############################
+# Yggdrasil - Compiler flags #
+##############################
 
-if (IRMINSUL_COMPILER_GCC)
+if (YGGDRASIL_COMPILER_GCC)
     set(
-        IRMINSUL_COMPILER_FLAGS
+        YGGDRASIL_COMPILER_FLAGS
 
         -pedantic
         -pedantic-errors
@@ -158,9 +158,9 @@ if (IRMINSUL_COMPILER_GCC)
     # Enabling some other warnings available since GCC 5
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 5)
         set(
-            IRMINSUL_COMPILER_FLAGS
+            YGGDRASIL_COMPILER_FLAGS
 
-            ${IRMINSUL_COMPILER_FLAGS}
+            ${YGGDRASIL_COMPILER_FLAGS}
             -fsized-deallocation
             -Warray-bounds=2
             -Wformat-signedness
@@ -171,9 +171,9 @@ if (IRMINSUL_COMPILER_GCC)
     # Enabling some other warnings available since GCC 6
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 6)
         set(
-            IRMINSUL_COMPILER_FLAGS
+            YGGDRASIL_COMPILER_FLAGS
 
-            ${IRMINSUL_COMPILER_FLAGS}
+            ${YGGDRASIL_COMPILER_FLAGS}
             -Wduplicated-cond
             -Wnull-dereference
         )
@@ -182,9 +182,9 @@ if (IRMINSUL_COMPILER_GCC)
     # Enabling some other warnings available since GCC 7
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 7)
         set(
-            IRMINSUL_COMPILER_FLAGS
+            YGGDRASIL_COMPILER_FLAGS
 
-            ${IRMINSUL_COMPILER_FLAGS}
+            ${YGGDRASIL_COMPILER_FLAGS}
             -Waligned-new
             -Walloca
             -Walloc-zero
@@ -194,13 +194,13 @@ if (IRMINSUL_COMPILER_GCC)
     endif ()
 
     # Enabling code coverage
-    option(IRMINSUL_ENABLE_COVERAGE "Enable code coverage (GCC only)" OFF)
+    option(YGGDRASIL_ENABLE_COVERAGE "Enable code coverage (GCC only)" OFF)
 
-    if (IRMINSUL_CONFIG_DEBUG AND IRMINSUL_ENABLE_COVERAGE)
+    if (YGGDRASIL_CONFIG_DEBUG AND YGGDRASIL_ENABLE_COVERAGE)
         set(
-            IRMINSUL_COMPILER_FLAGS
+            YGGDRASIL_COMPILER_FLAGS
 
-            ${IRMINSUL_COMPILER_FLAGS}
+            ${YGGDRASIL_COMPILER_FLAGS}
             -g
             -O0
             -fno-inline
@@ -211,14 +211,14 @@ if (IRMINSUL_COMPILER_GCC)
         )
 
         set(
-            IRMINSUL_LINKER_FLAGS
+            YGGDRASIL_LINKER_FLAGS
 
             gcov
         )
     endif ()
-elseif (IRMINSUL_COMPILER_CLANG)
+elseif (YGGDRASIL_COMPILER_CLANG)
     set(
-        IRMINSUL_COMPILER_FLAGS
+        YGGDRASIL_COMPILER_FLAGS
 
         -Weverything
 
@@ -240,11 +240,11 @@ elseif (IRMINSUL_COMPILER_CLANG)
         -Wno-weak-vtables
     )
 
-    if (IRMINSUL_COMPILER_CLANG_CL)
+    if (YGGDRASIL_COMPILER_CLANG_CL)
         set(
-            IRMINSUL_COMPILER_FLAGS
+            YGGDRASIL_COMPILER_FLAGS
 
-            ${IRMINSUL_COMPILER_FLAGS}
+            ${YGGDRASIL_COMPILER_FLAGS}
             # Disabling warnings triggered in externals
             -Wno-language-extension-token
             -Wno-nonportable-system-include-path
@@ -252,28 +252,28 @@ elseif (IRMINSUL_COMPILER_CLANG)
         )
     else ()
         set(
-            IRMINSUL_COMPILER_FLAGS
+            YGGDRASIL_COMPILER_FLAGS
 
-            ${IRMINSUL_COMPILER_FLAGS}
+            ${YGGDRASIL_COMPILER_FLAGS}
             # Other warning flags not recognized by clang-cl
             -pedantic
             -pedantic-errors
         )
     endif ()
 
-    if (IRMINSUL_USE_EMSCRIPTEN)
+    if (YGGDRASIL_USE_EMSCRIPTEN)
         set(
-            IRMINSUL_COMPILER_FLAGS
+            YGGDRASIL_COMPILER_FLAGS
 
-            ${IRMINSUL_COMPILER_FLAGS}
+            ${YGGDRASIL_COMPILER_FLAGS}
             "SHELL:-s USE_GLFW=3"
             "SHELL:-s USE_LIBPNG=1"
         )
 
         set(
-            IRMINSUL_LINKER_FLAGS
+            YGGDRASIL_LINKER_FLAGS
 
-            ${IRMINSUL_LINKER_FLAGS}
+            ${YGGDRASIL_LINKER_FLAGS}
             "-s USE_LIBPNG=1"
             "-s USE_GLFW=3"
             "-s USE_WEBGL2=1"
@@ -287,15 +287,15 @@ elseif (IRMINSUL_COMPILER_CLANG)
     # Disabling some warnings available since Clang 5
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 5)
         set(
-            IRMINSUL_COMPILER_FLAGS
+            YGGDRASIL_COMPILER_FLAGS
 
-            ${IRMINSUL_COMPILER_FLAGS}
+            ${YGGDRASIL_COMPILER_FLAGS}
             -Wno-unused-template
         )
     endif ()
-elseif (IRMINSUL_COMPILER_MSVC)
+elseif (YGGDRASIL_COMPILER_MSVC)
     set(
-        IRMINSUL_COMPILER_FLAGS
+        YGGDRASIL_COMPILER_FLAGS
 
         /Wall
         /MP # Enabling multi-processes compilation
@@ -327,18 +327,18 @@ elseif (IRMINSUL_COMPILER_MSVC)
     string(REGEX REPLACE "/W[0-4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif ()
 
-if (IRMINSUL_COMPILER_MSVC OR IRMINSUL_COMPILER_CLANG_CL)
+if (YGGDRASIL_COMPILER_MSVC OR YGGDRASIL_COMPILER_CLANG_CL)
     set(
-        IRMINSUL_COMPILER_FLAGS
+        YGGDRASIL_COMPILER_FLAGS
 
-        ${IRMINSUL_COMPILER_FLAGS}
+        ${YGGDRASIL_COMPILER_FLAGS}
         /permissive- # Improving standard compliance
         /EHsc # Enabling exceptions
         /utf-8 # Forcing MSVC to actually handle files as UTF-8
     )
 
     target_compile_definitions(
-        Irminsul
+        Yggdrasil
 
         PRIVATE
 
@@ -347,63 +347,63 @@ if (IRMINSUL_COMPILER_MSVC OR IRMINSUL_COMPILER_CLANG_CL)
     )
 endif ()
 
-###########################
-# Irminsul - Source files #
-###########################
+############################
+# Yggdrasil - Source files #
+############################
 
 set(
-    IRMINSUL_SRC
+    YGGDRASIL_SRC
 
     main.cpp
-    src/Irminsul/*.cpp
+    src/Yggdrasil/*.cpp
 
-    include/Irminsul/*.hpp
-    include/Irminsul/*.inl
+    include/Yggdrasil/*.hpp
+    include/Yggdrasil/*.inl
 )
 
 # Adding every file to be compiled
 file(
     GLOB
-    IRMINSUL_FILES
+    YGGDRASIL_FILES
 
-    ${IRMINSUL_SRC}
+    ${YGGDRASIL_SRC}
 )
 
-########################
-# Irminsul - RaZ usage #
-########################
+#########################
+# Yggdrasil - RaZ usage #
+#########################
 
 # Finding RaZ
-option(IRMINSUL_BUILD_RAZ "Build RaZ alongside Irminsul (requires downloading the submodule)" OFF)
+option(YGGDRASIL_BUILD_RAZ "Build RaZ alongside Yggdrasil (requires downloading the submodule)" OFF)
 
-if (NOT IRMINSUL_BUILD_RAZ)
+if (NOT YGGDRASIL_BUILD_RAZ)
     set(RAZ_ROOT "C:/RaZ" CACHE PATH "Path to the RaZ installation")
 
     set(RAZ_LIB_DIR "${RAZ_ROOT}/lib")
 
     # Visual Studio having all the configurations from within the project, CMAKE_BUILD_TYPE is unknown at generation time
     # Adding a link directory automatically creates anoter path to which is appended the $(Configuration) macro, which contains the build type
-    if (NOT IRMINSUL_COMPILER_MSVC)
+    if (NOT YGGDRASIL_COMPILER_MSVC)
         set(RAZ_LIB_DIR "${RAZ_LIB_DIR}/${CMAKE_BUILD_TYPE}")
     endif ()
 
-    target_link_directories(Irminsul PRIVATE "${RAZ_LIB_DIR}")
-    target_include_directories(Irminsul PUBLIC "${RAZ_ROOT}/include")
-    target_compile_definitions(Irminsul PRIVATE RAZ_USE_WINDOW) # Raz::Window is needed
+    target_link_directories(Yggdrasil PRIVATE "${RAZ_LIB_DIR}")
+    target_include_directories(Yggdrasil PUBLIC "${RAZ_ROOT}/include")
+    target_compile_definitions(Yggdrasil PRIVATE RAZ_USE_WINDOW) # Raz::Window is needed
 
     # Additional linking flags
-    if (IRMINSUL_PLATFORM_WINDOWS)
+    if (YGGDRASIL_PLATFORM_WINDOWS)
         set(
-            IRMINSUL_LINKER_FLAGS
+            YGGDRASIL_LINKER_FLAGS
 
-            ${IRMINSUL_LINKER_FLAGS}
+            ${YGGDRASIL_LINKER_FLAGS}
             opengl32
         )
-    elseif (IRMINSUL_PLATFORM_LINUX)
+    elseif (YGGDRASIL_PLATFORM_LINUX)
         set(
-            IRMINSUL_LINKER_FLAGS
+            YGGDRASIL_LINKER_FLAGS
 
-            ${IRMINSUL_LINKER_FLAGS}
+            ${YGGDRASIL_LINKER_FLAGS}
             dl
             pthread
             GL
@@ -413,13 +413,13 @@ if (NOT IRMINSUL_BUILD_RAZ)
             Xinerama
             Xxf86vm
         )
-    elseif (IRMINSUL_PLATFORM_MAC)
+    elseif (YGGDRASIL_PLATFORM_MAC)
         find_package(OpenGL REQUIRED)
 
         set(
-            IRMINSUL_LINKER_FLAGS
+            YGGDRASIL_LINKER_FLAGS
 
-            ${IRMINSUL_LINKER_FLAGS}
+            ${YGGDRASIL_LINKER_FLAGS}
             OpenGL::GL
             "-framework OpenGL"
             "-framework Cocoa"
@@ -442,34 +442,34 @@ else ()
     endif ()
 endif ()
 
-target_compile_definitions(Irminsul PRIVATE RAZ_ROOT="${RAZ_ROOT}/")
-target_link_libraries(Irminsul PUBLIC RaZ)
+target_compile_definitions(Yggdrasil PRIVATE RAZ_ROOT="${RAZ_ROOT}/")
+target_link_libraries(Yggdrasil PUBLIC RaZ)
 
-####################
-# Irminsul - Build #
-####################
+#####################
+# Yggdrasil - Build #
+#####################
 
-# If RaZ is built alongside Irminsul, use its compiler flags' script
-if (IRMINSUL_BUILD_RAZ)
+# If RaZ is built alongside Yggdrasil, use its compiler flags' script
+if (YGGDRASIL_BUILD_RAZ)
     include("${RAZ_ROOT}/cmake/CompilerFlags.cmake")
-    add_compiler_flags(Irminsul PRIVATE)
+    add_compiler_flags(Yggdrasil PRIVATE)
 endif ()
 
-target_include_directories(Irminsul PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(Yggdrasil PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-if (NOT IRMINSUL_COMPILER_MSVC)
+if (NOT YGGDRASIL_COMPILER_MSVC)
     # Defining the compiler flags only for C++; this doesn't work with MSVC
-    set(IRMINSUL_COMPILER_FLAGS $<$<COMPILE_LANGUAGE:CXX>:${IRMINSUL_COMPILER_FLAGS}>)
+    set(YGGDRASIL_COMPILER_FLAGS $<$<COMPILE_LANGUAGE:CXX>:${YGGDRASIL_COMPILER_FLAGS}>)
 endif ()
 
-target_compile_options(Irminsul PRIVATE ${IRMINSUL_COMPILER_FLAGS})
-target_link_libraries(Irminsul PRIVATE ${IRMINSUL_LINKER_FLAGS})
+target_compile_options(Yggdrasil PRIVATE ${YGGDRASIL_COMPILER_FLAGS})
+target_link_libraries(Yggdrasil PRIVATE ${YGGDRASIL_LINKER_FLAGS})
 
 # Cygwin's Clang needs to use GCC's standard library
-if (CYGWIN AND IRMINSUL_COMPILER_CLANG)
-    target_compile_options(Irminsul PRIVATE -stdlib=libstdc++)
-    target_link_libraries(Irminsul PRIVATE stdc++)
+if (CYGWIN AND YGGDRASIL_COMPILER_CLANG)
+    target_compile_options(Yggdrasil PRIVATE -stdlib=libstdc++)
+    target_link_libraries(Yggdrasil PRIVATE stdc++)
 endif ()
 
-# Compiling Irminsul's sources
-target_sources(Irminsul PRIVATE ${IRMINSUL_FILES})
+# Compiling Yggdrasil's sources
+target_sources(Yggdrasil PRIVATE ${YGGDRASIL_FILES})

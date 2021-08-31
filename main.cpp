@@ -17,7 +17,7 @@ int main() {
   // Rendering //
   ///////////////
 
-  auto& renderSystem = world.addSystem<Raz::RenderSystem>(1280u, 720u, "Irminsul", Raz::WindowSetting::DEFAULT, 2);
+  auto& renderSystem = world.addSystem<Raz::RenderSystem>(1280u, 720u, "Yggdrasil", Raz::WindowSetting::DEFAULT, 2);
 
   Raz::RenderPass& geometryPass = renderSystem.getGeometryPass();
   geometryPass.getProgram().setShaders(Raz::VertexShader(RAZ_ROOT + "shaders/common.vert"s),
@@ -111,7 +111,7 @@ int main() {
 
   window.enableOverlay();
 
-  window.addOverlayLabel("Irminsul");
+  window.addOverlayLabel("Yggdrasil");
 
   window.addOverlaySeparator();
 
