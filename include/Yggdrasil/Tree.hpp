@@ -5,17 +5,17 @@
 
 #include <RaZ/Math/Angle.hpp>
 
-namespace Raz { class Mesh; }
+namespace Raz { class Entity; }
 
 class Tree {
 public:
-  explicit Tree(Raz::Mesh& mesh) : m_mesh{ mesh } {}
-  Tree(Raz::Mesh& mesh, unsigned int branchLevel, Raz::Radiansf branchAngle) : Tree(mesh) { generate(branchLevel, branchAngle); }
+  explicit Tree(Raz::Entity& entity);
+  Tree(Raz::Entity& entity, unsigned int branchLevel, Raz::Radiansf branchAngle) : Tree(entity) { generate(branchLevel, branchAngle); }
 
   void generate(unsigned int branchLevel, Raz::Radiansf branchAngle);
 
 private:
-  Raz::Mesh& m_mesh;
+  Raz::Entity& m_entity;
 };
 
 #endif // YGGDRASIL_TREE_HPP

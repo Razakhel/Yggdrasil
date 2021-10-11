@@ -3,6 +3,7 @@
 #include <RaZ/Application.hpp>
 #include <RaZ/Math/Transform.hpp>
 #include <RaZ/Render/RenderSystem.hpp>
+#include <RaZ/Utils/Logger.hpp>
 
 using namespace std::literals;
 using namespace Raz::Literals;
@@ -14,6 +15,8 @@ int main() {
 
   Raz::Application app;
   Raz::World& world = app.addWorld(3);
+
+  Raz::Logger::setLoggingLevel(Raz::LoggingLevel::ALL);
 
   ///////////////
   // Rendering //
@@ -52,14 +55,10 @@ int main() {
   // Tree //
   //////////
 
-  Raz::Entity& treeEntity = world.addEntity();
-  auto& treeMesh          = treeEntity.addComponent<Raz::Mesh>();
-  treeEntity.addComponent<Raz::Transform>();
-
   unsigned int branchLevel  = 10;
   Raz::Radiansf branchAngle = 20_deg;
 
-  Tree tree(treeMesh, branchLevel, branchAngle);
+  Tree tree(world.addEntity(), branchLevel, branchAngle);
 
   Raz::Renderer::disable(Raz::Capability::CULL);
 
@@ -127,33 +126,29 @@ int main() {
   // Overlay //
   /////////////
 
-  window.enableOverlay();
+  Raz::OverlayWindow& overlayWindow = window.addOverlayWindow("Yggdrasil");
 
-  window.addOverlayLabel("Yggdrasil");
+  overlayWindow.addLabel("Press WASD to fly the camera around,");
+  overlayWindow.addLabel("Space/V to go up/down,");
+  overlayWindow.addLabel("& Shift to move faster.");
+  overlayWindow.addLabel("Hold the right mouse button to rotate the camera.");
 
-  window.addOverlaySeparator();
+  overlayWindow.addSeparator();
 
-  window.addOverlayLabel("Press WASD to fly the camera around,");
-  window.addOverlayLabel("Space/V to go up/down,");
-  window.addOverlayLabel("& Shift to move faster.");
-  window.addOverlayLabel("Hold the right mouse button to rotate the camera.");
-
-  window.addOverlaySeparator();
-
-  window.addOverlaySlider("Branches level", [&branchLevel, &branchAngle, &tree] (float value) {
+  overlayWindow.addSlider("Branches level", [&branchLevel, &branchAngle, &tree] (float value) {
     branchLevel = static_cast<unsigned int>(value);
     tree.generate(branchLevel, branchAngle);
   }, 0.f, 10.f, static_cast<float>(branchLevel));
 
-  window.addOverlaySlider("Branches angle", [&branchLevel, &branchAngle, &tree] (float value) {
+  overlayWindow.addSlider("Branches angle", [&branchLevel, &branchAngle, &tree] (float value) {
     branchAngle = Raz::Degreesf(value);
     tree.generate(branchLevel, branchAngle);
   }, 5.f, 45.f, Raz::Degreesf(branchAngle).value);
 
-  window.addOverlaySeparator();
+  overlayWindow.addSeparator();
 
-  window.addOverlayFrameTime("Frame time: %.3f ms/frame");
-  window.addOverlayFpsCounter("FPS: %.1f");
+  overlayWindow.addFrameTime("Frame time: %.3f ms/frame");
+  overlayWindow.addFpsCounter("FPS: %.1f");
 
   //////////////////////////
   // Starting application //

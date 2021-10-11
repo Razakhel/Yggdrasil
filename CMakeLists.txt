@@ -24,55 +24,41 @@ target_compile_features(Yggdrasil PRIVATE cxx_std_17)
 # Detect whether Emscripten is being used
 if (CMAKE_CXX_COMPILER MATCHES "/em\\+\\+.*$")
     set(YGGDRASIL_USE_EMSCRIPTEN ON)
-    set(CMAKE_AR "${CMAKE_C_COMPILER}")
-    set(CMAKE_STATIC_LIBRARY_SUFFIX ".bc")
-    set(CMAKE_C_CREATE_STATIC_LIBRARY "<CMAKE_AR> -o <TARGET> <LINK_FLAGS> <OBJECTS>")
-    set(CMAKE_CXX_CREATE_STATIC_LIBRARY "<CMAKE_AR> -o <TARGET> <LINK_FLAGS> <OBJECTS>")
 else ()
     set(YGGDRASIL_USE_EMSCRIPTEN OFF)
 endif ()
 
 if (MSVC AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang") # Finding exclusively MSVC, not clang-cl
-    set(YGGDRASIL_COMPILER "MSVC")
     set(YGGDRASIL_COMPILER_MSVC ON)
     target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_COMPILER_MSVC)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if (MSVC)
         # Using clang-cl, for which both MSVC & Clang are found
-        set(YGGDRASIL_COMPILER "Clang-cl")
         set(YGGDRASIL_COMPILER_CLANG_CL ON)
-    else ()
-        set(YGGDRASIL_COMPILER "Clang")
     endif ()
 
     set(YGGDRASIL_COMPILER_CLANG ON)
     target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_COMPILER_CLANG)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(YGGDRASIL_COMPILER "GCC")
     set(YGGDRASIL_COMPILER_GCC ON)
     target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_COMPILER_GCC)
 endif ()
 
 if (WIN32 OR CYGWIN)
-    set(YGGDRASIL_PLATFORM "Windows")
     set(YGGDRASIL_PLATFORM_WINDOWS ON)
     target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_WINDOWS)
 
     if (CYGWIN)
-        set(YGGDRASIL_PLATFORM "${YGGDRASIL_PLATFORM} (Cygwin)")
         set(YGGDRASIL_PLATFORM_CYGWIN ON)
         target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_CYGWIN)
     endif ()
 elseif (APPLE)
-    set(YGGDRASIL_PLATFORM "macOS")
     set(YGGDRASIL_PLATFORM_MAC ON)
     target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_MAC)
 elseif (YGGDRASIL_USE_EMSCRIPTEN)
-    set(YGGDRASIL_PLATFORM "Emscripten")
     set(YGGDRASIL_PLATFORM_EMSCRIPTEN ON)
     target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_EMSCRIPTEN USE_OPENGL_ES)
 elseif (UNIX)
-    set(YGGDRASIL_PLATFORM "Linux")
     set(YGGDRASIL_PLATFORM_LINUX ON)
     target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_PLATFORM_LINUX)
 endif ()
@@ -80,20 +66,17 @@ endif ()
 if (YGGDRASIL_COMPILER_MSVC)
     set(YGGDRASIL_CONFIG_DEBUG   "$<IF:$<CONFIG:Debug>,ON,OFF>")
     set(YGGDRASIL_CONFIG_RELEASE "$<IF:$<CONFIG:Debug>,OFF,ON>")
-    set(YGGDRASIL_CONFIG_SHORT   "$<IF:$<CONFIG:Debug>,Debug,Release>")
 
     target_compile_definitions(Yggdrasil PUBLIC $<IF:$<CONFIG:Debug>,YGGDRASIL_CONFIG_DEBUG,YGGDRASIL_CONFIG_RELEASE>)
 else ()
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         set(YGGDRASIL_CONFIG_DEBUG   ON)
         set(YGGDRASIL_CONFIG_RELEASE OFF)
-        set(YGGDRASIL_CONFIG_SHORT   "Debug")
 
         target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_CONFIG_DEBUG)
     else ()
         set(YGGDRASIL_CONFIG_DEBUG   OFF)
         set(YGGDRASIL_CONFIG_RELEASE ON)
-        set(YGGDRASIL_CONFIG_SHORT   "Release")
 
         target_compile_definitions(Yggdrasil PUBLIC YGGDRASIL_CONFIG_RELEASE)
     endif ()
@@ -261,29 +244,6 @@ elseif (YGGDRASIL_COMPILER_CLANG)
         )
     endif ()
 
-    if (YGGDRASIL_USE_EMSCRIPTEN)
-        set(
-            YGGDRASIL_COMPILER_FLAGS
-
-            ${YGGDRASIL_COMPILER_FLAGS}
-            "SHELL:-s USE_GLFW=3"
-            "SHELL:-s USE_LIBPNG=1"
-        )
-
-        set(
-            YGGDRASIL_LINKER_FLAGS
-
-            ${YGGDRASIL_LINKER_FLAGS}
-            "-s USE_LIBPNG=1"
-            "-s USE_GLFW=3"
-            "-s USE_WEBGL2=1"
-            "-s OFFSCREEN_FRAMEBUFFER=1"
-            "-s OFFSCREENCANVAS_SUPPORT=1"
-            "-s DOUBLE_MODE=0"
-            glfw
-        )
-    endif ()
-
     # Disabling some warnings available since Clang 5
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 5)
         set(
@@ -345,6 +305,21 @@ if (YGGDRASIL_COMPILER_MSVC OR YGGDRASIL_COMPILER_CLANG_CL)
         NOMINMAX # Preventing definitions of min & max macros
         _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING # Ignoring std::codecvt deprecation warnings
     )
+endif ()
+
+if (YGGDRASIL_USE_EMSCRIPTEN)
+    target_compile_options(Yggdrasil PRIVATE "SHELL:-s USE_LIBPNG=1")
+
+    target_link_options(
+        Yggdrasil
+
+        PUBLIC
+
+        "SHELL:-s USE_GLFW=3"
+        "SHELL:-s USE_LIBPNG=1"
+    )
+
+    target_link_libraries(Yggdrasil PRIVATE glfw)
 endif ()
 
 ############################
