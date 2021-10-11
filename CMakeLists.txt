@@ -448,3 +448,14 @@ endif ()
 
 # Compiling Yggdrasil's sources
 target_sources(Yggdrasil PRIVATE ${YGGDRASIL_FILES})
+
+############################
+# Yggdrasil - Installation #
+############################
+
+# Installing the executable
+if (YGGDRASIL_PLATFORM_WINDOWS)
+    set(CMAKE_INSTALL_PREFIX "C:/Yggdrasil")
+endif ()
+
+install(TARGETS Yggdrasil DESTINATION "${CMAKE_INSTALL_PREFIX}")
