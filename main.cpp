@@ -49,7 +49,7 @@ int main() {
 
   Raz::Entity& camera = world.addEntity();
   auto& cameraComp    = camera.addComponent<Raz::Camera>(window.getWidth(), window.getHeight(), 45_deg, 0.1f, 1000.f);
-  auto& cameraTrans   = camera.addComponent<Raz::Transform>(Raz::Vec3f(0.f, 5.f, -17.5f));
+  auto& cameraTrans   = camera.addComponent<Raz::Transform>(Raz::Vec3f(0.f, 5.f, 17.5f));
 
   //////////
   // Tree //
@@ -78,18 +78,18 @@ int main() {
     cameraTrans.move(0.f, (-10.f * deltaTime) * cameraSpeed, 0.f);
   });
   window.addKeyCallback(Raz::Keyboard::W, [&cameraTrans, &cameraComp, &cameraSpeed] (float deltaTime) {
-    const float moveVal = (10.f * deltaTime) * cameraSpeed;
-
-    cameraTrans.move(0.f, 0.f, moveVal);
-    cameraComp.setOrthoBoundX(cameraComp.getOrthoBoundX() - moveVal);
-    cameraComp.setOrthoBoundY(cameraComp.getOrthoBoundY() - moveVal);
-  });
-  window.addKeyCallback(Raz::Keyboard::S, [&cameraTrans, &cameraComp, &cameraSpeed] (float deltaTime) {
     const float moveVal = (-10.f * deltaTime) * cameraSpeed;
 
     cameraTrans.move(0.f, 0.f, moveVal);
-    cameraComp.setOrthoBoundX(cameraComp.getOrthoBoundX() - moveVal);
-    cameraComp.setOrthoBoundY(cameraComp.getOrthoBoundY() - moveVal);
+    cameraComp.setOrthoBoundX(cameraComp.getOrthoBoundX() + moveVal);
+    cameraComp.setOrthoBoundY(cameraComp.getOrthoBoundY() + moveVal);
+  });
+  window.addKeyCallback(Raz::Keyboard::S, [&cameraTrans, &cameraComp, &cameraSpeed] (float deltaTime) {
+    const float moveVal = (10.f * deltaTime) * cameraSpeed;
+
+    cameraTrans.move(0.f, 0.f, moveVal);
+    cameraComp.setOrthoBoundX(cameraComp.getOrthoBoundX() + moveVal);
+    cameraComp.setOrthoBoundY(cameraComp.getOrthoBoundY() + moveVal);
   });
   window.addKeyCallback(Raz::Keyboard::A, [&cameraTrans, &cameraSpeed] (float deltaTime) {
     cameraTrans.move((-10.f * deltaTime) * cameraSpeed, 0.f, 0.f);
@@ -108,7 +108,7 @@ int main() {
   window.addMouseButtonCallback(Raz::Mouse::RIGHT_CLICK, [&cameraLocked, &window] (float) {
     cameraLocked = false;
     window.changeCursorState(Raz::Cursor::DISABLED);
-  }, Raz::Input::ALWAYS, [&cameraLocked, &window] () {
+  }, Raz::Input::ONCE, [&cameraLocked, &window] () {
     cameraLocked = true;
     window.changeCursorState(Raz::Cursor::NORMAL);
   });
@@ -126,29 +126,29 @@ int main() {
   // Overlay //
   /////////////
 
-  Raz::OverlayWindow& overlayWindow = window.addOverlayWindow("Yggdrasil");
+  Raz::OverlayWindow& overlay = window.getOverlay().addWindow("Yggdrasil", Raz::Vec2f(-1.f));
 
-  overlayWindow.addLabel("Press WASD to fly the camera around,");
-  overlayWindow.addLabel("Space/V to go up/down,");
-  overlayWindow.addLabel("& Shift to move faster.");
-  overlayWindow.addLabel("Hold the right mouse button to rotate the camera.");
+  overlay.addLabel("Press WASD to fly the camera around,");
+  overlay.addLabel("Space/V to go up/down,");
+  overlay.addLabel("& Shift to move faster.");
+  overlay.addLabel("Hold the right mouse button to rotate the camera.");
 
-  overlayWindow.addSeparator();
+  overlay.addSeparator();
 
-  overlayWindow.addSlider("Branches level", [&branchLevel, &branchAngle, &tree] (float value) {
+  overlay.addSlider("Branches level", [&branchLevel, &branchAngle, &tree] (float value) {
     branchLevel = static_cast<unsigned int>(value);
     tree.generate(branchLevel, branchAngle);
   }, 0.f, 10.f, static_cast<float>(branchLevel));
 
-  overlayWindow.addSlider("Branches angle", [&branchLevel, &branchAngle, &tree] (float value) {
+  overlay.addSlider("Branches angle", [&branchLevel, &branchAngle, &tree] (float value) {
     branchAngle = Raz::Degreesf(value);
     tree.generate(branchLevel, branchAngle);
   }, 5.f, 45.f, Raz::Degreesf(branchAngle).value);
 
-  overlayWindow.addSeparator();
+  overlay.addSeparator();
 
-  overlayWindow.addFrameTime("Frame time: %.3f ms/frame");
-  overlayWindow.addFpsCounter("FPS: %.1f");
+  overlay.addFrameTime("Frame time: %.3f ms/frame");
+  overlay.addFpsCounter("FPS: %.1f");
 
   //////////////////////////
   // Starting application //

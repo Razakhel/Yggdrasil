@@ -28,8 +28,8 @@ void createBranch(Raz::Mesh& mesh, const Raz::Vec3f& base, const Raz::Vec3f& dir
   const Raz::Vec3f branchTipPos     = base + direction * length * randDistrib(randGenerator);
 
   std::vector<Raz::Vertex>& vertices = mesh.getSubmeshes().front().getVertices();
-  vertices.emplace_back(Raz::Vertex{ base + branchBaseStride });
   vertices.emplace_back(Raz::Vertex{ base - branchBaseStride });
+  vertices.emplace_back(Raz::Vertex{ base + branchBaseStride });
   vertices.emplace_back(Raz::Vertex{ branchTipPos });
 
   std::vector<unsigned int>& indices = mesh.getSubmeshes().front().getTriangleIndices();
