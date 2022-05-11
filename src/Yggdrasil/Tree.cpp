@@ -8,6 +8,8 @@
 
 #include <random>
 
+using namespace Raz::Literals;
+
 namespace {
 
 void createBranch(Raz::Mesh& mesh, const Raz::Vec3f& base, const Raz::Vec3f& direction, float length,
@@ -47,7 +49,7 @@ void createBranch(Raz::Mesh& mesh, const Raz::Vec3f& base, const Raz::Vec3f& dir
   //       |
   //       |
 
-  const Raz::Mat3f rotation(Raz::Quaternion(angle * randDistrib(randGenerator), direction.cross(branchPerpDir)).computeMatrix());
+  const Raz::Quaternionf rotation(angle * randDistrib(randGenerator), direction.cross(branchPerpDir));
   const float nextLength       = length * 0.66f;
   const unsigned int nextLevel = level - 1;
 
@@ -57,7 +59,7 @@ void createBranch(Raz::Mesh& mesh, const Raz::Vec3f& base, const Raz::Vec3f& dir
   createBranch(mesh, branchTipPos, nextDirection, nextLength, nextLevel, angle, randGenerator);
   createBranch(mesh, branchTipPos, nextInvDirection, nextLength, nextLevel, angle, randGenerator);
 
-  const Raz::Mat3f upRotation(Raz::Quaternionf(Raz::Degrees(90.f), Raz::Axis::Y).computeMatrix());
+  const Raz::Quaternionf upRotation(90_deg, Raz::Axis::Y);
 
   createBranch(mesh, branchTipPos, nextDirection * upRotation, nextLength, nextLevel, angle, randGenerator);
   createBranch(mesh, branchTipPos, upRotation * nextDirection, nextLength, nextLevel, angle, randGenerator);

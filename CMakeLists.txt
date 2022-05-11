@@ -410,24 +410,40 @@ else ()
         set(RAZ_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
         set(RAZ_BUILD_TESTS OFF CACHE BOOL "" FORCE)
         set(RAZ_GEN_DOC OFF CACHE BOOL "" FORCE)
+        set(RAZ_INSTALL OFF CACHE BOOL "" FORCE)
 
         add_subdirectory("${RAZ_ROOT}")
+
+        # Use RaZ's compiler flags' script
+        include("${RAZ_ROOT}/cmake/CompilerFlags.cmake")
+        add_compiler_flags(Yggdrasil PRIVATE)
     else ()
         message(FATAL_ERROR "Failed to find RaZ; the submodule must be downloaded")
     endif ()
 endif ()
 
-target_compile_definitions(Yggdrasil PRIVATE RAZ_ROOT="${RAZ_ROOT}/")
+if (YGGDRASIL_USE_EMSCRIPTEN)
+    target_compile_definitions(Yggdrasil PRIVATE RAZ_ROOT="/")
+else ()
+    target_compile_definitions(Yggdrasil PRIVATE RAZ_ROOT="${RAZ_ROOT}/")
+endif ()
+
 target_link_libraries(Yggdrasil PUBLIC RaZ)
 
 #####################
 # Yggdrasil - Build #
 #####################
 
-# If RaZ is built alongside Yggdrasil, use its compiler flags' script
-if (YGGDRASIL_BUILD_RAZ)
-    include("${RAZ_ROOT}/cmake/CompilerFlags.cmake")
-    add_compiler_flags(Yggdrasil PRIVATE)
+if (YGGDRASIL_USE_EMSCRIPTEN)
+    set_target_properties(Yggdrasil PROPERTIES SUFFIX ".html")
+
+    target_link_options(
+        Yggdrasil
+
+        PRIVATE
+
+        "SHELL:--preload-file ${RAZ_ROOT}/shaders@shaders"
+    )
 endif ()
 
 target_include_directories(Yggdrasil PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

@@ -2,6 +2,7 @@
 
 #include <RaZ/Application.hpp>
 #include <RaZ/Math/Transform.hpp>
+#include <RaZ/Render/Camera.hpp>
 #include <RaZ/Render/RenderSystem.hpp>
 #include <RaZ/Utils/Logger.hpp>
 
@@ -23,10 +24,6 @@ int main() {
   ///////////////
 
   auto& renderSystem = world.addSystem<Raz::RenderSystem>(1280u, 720u, "Yggdrasil", Raz::WindowSetting::DEFAULT, 2);
-
-  Raz::RenderPass& geometryPass = renderSystem.getGeometryPass();
-  geometryPass.getProgram().setShaders(Raz::VertexShader(RAZ_ROOT + "shaders/common.vert"s),
-                                       Raz::FragmentShader(RAZ_ROOT + "shaders/cook-torrance.frag"s));
 
   Raz::Window& window = renderSystem.getWindow();
   window.setClearColor(0.75f, 0.75f, 0.75f);
@@ -81,15 +78,13 @@ int main() {
     const float moveVal = (-10.f * deltaTime) * cameraSpeed;
 
     cameraTrans.move(0.f, 0.f, moveVal);
-    cameraComp.setOrthoBoundX(cameraComp.getOrthoBoundX() + moveVal);
-    cameraComp.setOrthoBoundY(cameraComp.getOrthoBoundY() + moveVal);
+    cameraComp.setOrthographicBound(cameraComp.getOrthographicBound() + moveVal);
   });
   window.addKeyCallback(Raz::Keyboard::S, [&cameraTrans, &cameraComp, &cameraSpeed] (float deltaTime) {
     const float moveVal = (10.f * deltaTime) * cameraSpeed;
 
     cameraTrans.move(0.f, 0.f, moveVal);
-    cameraComp.setOrthoBoundX(cameraComp.getOrthoBoundX() + moveVal);
-    cameraComp.setOrthoBoundY(cameraComp.getOrthoBoundY() + moveVal);
+    cameraComp.setOrthographicBound(cameraComp.getOrthographicBound() + moveVal);
   });
   window.addKeyCallback(Raz::Keyboard::A, [&cameraTrans, &cameraSpeed] (float deltaTime) {
     cameraTrans.move((-10.f * deltaTime) * cameraSpeed, 0.f, 0.f);
@@ -98,7 +93,7 @@ int main() {
     cameraTrans.move((10.f * deltaTime) * cameraSpeed, 0.f, 0.f);
   });
 
-  window.addMouseScrollCallback([&cameraComp] (double /* xOffset */, double yOffset) {
+  window.setMouseScrollCallback([&cameraComp] (double /* xOffset */, double yOffset) {
     const float newFov = Raz::Degreesf(cameraComp.getFieldOfView()).value + static_cast<float>(-yOffset) * 2.f;
     cameraComp.setFieldOfView(Raz::Degreesf(std::clamp(newFov, 15.f, 90.f)));
   });
@@ -107,13 +102,13 @@ int main() {
 
   window.addMouseButtonCallback(Raz::Mouse::RIGHT_CLICK, [&cameraLocked, &window] (float) {
     cameraLocked = false;
-    window.changeCursorState(Raz::Cursor::DISABLED);
+    window.setCursorState(Raz::Cursor::DISABLED);
   }, Raz::Input::ONCE, [&cameraLocked, &window] () {
     cameraLocked = true;
-    window.changeCursorState(Raz::Cursor::NORMAL);
+    window.setCursorState(Raz::Cursor::NORMAL);
   });
 
-  window.addMouseMoveCallback([&cameraLocked, &cameraTrans, &window] (double xMove, double yMove) {
+  window.setMouseMoveCallback([&cameraLocked, &cameraTrans, &window] (double xMove, double yMove) {
     if (cameraLocked)
       return;
 
